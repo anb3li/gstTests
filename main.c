@@ -11,15 +11,15 @@ int main(int argc, char *argv[]) {
 
     // Create pipeline using gst_parse_launch
     pipeline = gst_parse_launch(
-        "\
-   videotestsrc pattern=1 ! \
-   video/x-raw,format=AYUV,framerate=\(fraction\)10/1,width=100,height=100 ! \
-   videobox border-alpha=0 top=-70 bottom=-70 right=-220 ! \
-   compositor name=comp sink_0::alpha=0.7 sink_1::alpha=0.5 ! \
-   videoconvert ! xvimagesink \
-   videotestsrc ! \
-   video/x-raw,format=AYUV,framerate=\(fraction\)5/1,width=320,height=240 ! comp.",
+        "input-selector name=selector ! videoconvert ! autovideosink 
+         videotestsrc pattern = 0 ! selector.sink_1
+         videotestsrc pattern = 1 ! selector.sink_2
+         ",
         NULL);
+
+    GstElement *selector = gst_bin_get_by_name(GST_BIN(pipeline), "selector");
+
+    GstPad vid2sink = gst_element_get_static_pad(selector, "sink_2");
 
     // Start playing the pipeline
     ret = gst_element_set_state(pipeline, GST_STATE_PLAYING);
@@ -28,6 +28,14 @@ int main(int argc, char *argv[]) {
         gst_object_unref(pipeline);
         return -1;
     }
+
+    // Sleep for 5 seconds to display the first source
+    g_print("Displaying first source for 5 seconds...\n");
+    g_usleep(5 * G_USEC_PER_SEC);
+
+    // Switch to the second source (videotestsrc pattern=1)
+    g_print("Switching to second source...\n");
+    g_object_set(selector, "active-pad", vid2sink, NULL);
 
     // Wait until error or EOS (End of Stream)
     bus = gst_element_get_bus(pipeline);
