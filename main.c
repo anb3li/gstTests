@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
     GstElement *selector = gst_bin_get_by_name(GST_BIN(pipeline), "selector");
 
-    GstPad vid2sink = gst_element_get_static_pad(selector, "sink_2");
+    GstPad *vid2sink = gst_element_get_static_pad(selector, "sink_2");
 
     // Start playing the pipeline
     ret = gst_element_set_state(pipeline, GST_STATE_PLAYING);
