@@ -13,8 +13,7 @@ int main(int argc, char *argv[]) {
     pipeline = gst_parse_launch(
         "input-selector name=selector ! videoconvert ! autovideosink 
          videotestsrc pattern = 0 ! selector.sink_1
-         videotestsrc pattern = 1 ! selector.sink_2
-         ",
+         videotestsrc pattern = 1 ! selector.sink_2",
         NULL);
 
     GstElement *selector = gst_bin_get_by_name(GST_BIN(pipeline), "selector");
